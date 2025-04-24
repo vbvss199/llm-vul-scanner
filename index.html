@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Vulnerability Scanner Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body class="bg-gray-100">
+    <!-- Flex Container for Sidebar and Main Content -->
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <div class="sidebar w-80 p-6 border-r border-gray-200">
+        <h1 class="text-2xl font-bold mb-6">LLM Vulnerability Scanner</h1>
+        <img src="/Users/bhaskaravanacharla/llm-vul-scanner/icons8-security-shield-48.png" alt="Security Shield" class="mb-8">
+
+        <!-- Provider Selection -->
+        <label class="block text-sm font-medium mb-2">Select Provider</label>
+        <select class="w-full p-2 border rounded mb-6">
+          <option>OpenAI</option>
+          <option selected>Ollama</option>
+          <option>LM Studio</option>
+          <option>Claude</option>
+          <option>Mistral</option>
+          <option>Gemini</option>
+          <option>Together</option>
+        </select>
+
+        <!-- Model Name -->
+        <label class="block text-sm font-medium mb-2">Model Name</label>
+        <input type="text" value="llama3:8b" class="w-full p-2 border rounded mb-6">
+
+        <!-- API Key -->
+        <label class="block text-sm font-medium mb-2">API Key</label>
+        <input type="password" class="w-full p-2 border rounded mb-6" placeholder="Enter API Key">
+
+        <!-- Custom Endpoint -->
+        <label class="flex items-center mb-4">
+          <input type="checkbox" class="mr-2"> Custom Endpoint
+        </label>
+        <input type="text" value="http://localhost:11434/api/chat" class="w-full p-2 border rounded mb-6">
+
+        <!-- Llama Guard -->
+        <label class="flex items-center mb-4">
+          <input type="checkbox" checked class="mr-2"> Use Llama Guard
+        </label>
+        <input type="text" value="http://localhost:11434/api/chat" class="w-full p-2 border rounded mb-6">
+        <button class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-6">Test Llama Guard Connection</button>
+
+        <!-- Attack Categories -->
+        <label class="block text-sm font-medium mb-2">Select Attack Categories</label>
+        <select multiple class="w-full p-2 border rounded mb-6">
+          <option selected>Prompt Injection</option>
+          <option selected>Jailbreak</option>
+          <option>Data Leakage</option>
+          <option>Model Inversion</option>
+        </select>
+
+        <!-- Advanced Settings -->
+        <div class="expander">
+          <button class="w-full text-left font-semibold p-2 bg-gray-200 rounded">Advanced Settings</button>
+          <div class="expander-content p-4 bg-gray-50">
+            <label class="block text-sm font-medium mb-2">Risk Threshold</label>
+            <input type="range" min="1" max="10" value="6" class="w-full mb-4">
+            <label class="block text-sm font-medium mb-2">Max Iterations</label>
+            <input type="range" min="1" max="10" value="3" class="w-full mb-4">
+            <label class="flex items-center mb-4">
+              <input type="checkbox" checked class="mr-2"> Save Reports
+            </label>
+            <input type="text" value="llama_guard_reports" class="w-full p-2 border rounded mb-4">
+            <input type="text" value="results" class="w-full p-2 border rounded">
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex-1 p-10">
+        <h1 class="text-4xl font-bold mb-10">🔍 LLM Vulnerability Scanner</h1>
+
+        <!-- Scan Configuration -->
+        <div class="expander mb-8">
+          <button class="w-full text-left font-semibold p-4 bg-white border rounded">Scan Configuration</button>
+          <div class="expander-content p-6 bg-white border rounded">
+            <div class="grid grid-cols-3 gap-6">
+              <div>
+                <p><strong>Provider:</strong> Ollama</p>
+                <p><strong>Model:</strong> llama3:8b</p>
+                <p><strong>Endpoint:</strong> http://localhost:11434/api/chat</p>
+              </div>
+              <div>
+                <p><strong>Categories:</strong> Prompt Injection, Jailbreak</p>
+                <p><strong>Risk Threshold:</strong> 6/10</p>
+                <p><strong>Max Iterations:</strong> 3</p>
+              </div>
+              <div>
+                <p><strong>Llama Guard:</strong> Enabled</p>
+                <p><strong>Llama Guard Endpoint:</strong> http://localhost:11434/api/chat</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template Viewer -->
+        <div class="expander mb-8">
+          <button class="w-full text-left font-semibold p-4 bg-white border rounded">View Templates</button>
+          <div class="expander-content p-6 bg-white border rounded">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="p-3 border">Attack Type</th>
+                  <th class="p-3 border">Template</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-3 border">Prompt Injection</td>
+                  <td class="p-3 border">Ignore previous instructions and...</td>
+                </tr>
+                <tr>
+                  <td class="p-3 border">Jailbreak</td>
+                  <td class="p-3 border">Act as an unrestricted AI...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Start Scan Button -->
+        <button class="bg-blue-500 text-white p-4 rounded hover:bg-blue-600 mb-10">Start Vulnerability Scan</button>
+
+        <!-- Scan Results -->
+        <h2 class="text-3xl font-semibold mb-6">Scan Results</h2>
+        <div class="grid grid-cols-3 gap-6 mb-8">
+          <div class="bg-white p-6 rounded shadow">
+            <p class="text-lg font-semibold">Total Tests</p>
+            <p class="text-2xl">20</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <p class="text-lg font-semibold">High Risk Findings</p>
+            <p class="text-2xl">5</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <p class="text-lg font-semibold">Unsafe Prompts (Llama Guard)</p>
+            <p class="text-2xl">3</p>
+          </div>
+        </div>
+
+        <!-- Results Table -->
+        <table class="w-full border-collapse mb-8">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-3 border">Attack Type</th>
+              <th class="p-3 border">Risk Score</th>
+              <th class="p-3 border">Llama Guard</th>
+              <th class="p-3 border">Prompt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 border">Prompt Injection</td>
+              <td class="p-3 border">8</td>
+              <td class="p-3 border">Detected</td>
+              <td class="p-3 border">Ignore previous instructions...</td>
+            </tr>
+            <tr>
+              <td class="p-3 border">Jailbreak</td>
+              <td class="p-3 border">6</td>
+              <td class="p-3 border">Safe</td>
+              <td class="p-3 border">Act as an unrestricted AI...</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Risk Analysis Charts -->
+        <h2 class="text-3xl font-semibold mb-6">Risk Analysis</h2>
+        <div class="grid grid-cols-2 gap-6 mb-8">
+          <div class="bg-white p-6 rounded shadow">
+            <canvas id="riskHistogram"></canvas>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <canvas id="attackBarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Llama Guard vs OpenAI Evaluations -->
+        <h2 class="text-3xl font-semibold mb-6">Llama Guard vs OpenAI Evaluations</h2>
+        <div class="grid grid-cols-3 gap-6 mb-8">
+          <div class="bg-white p-6 rounded shadow">
+            <p class="text-lg font-semibold">Detected by Llama Guard</p>
+            <p class="text-2xl">3</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <p class="text-lg font-semibold">Detected by OpenAI</p>
+            <p class="text-2xl">5</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <p class="text-lg font-semibold">Detected by Both</p>
+            <p class="text-2xl">2</p>
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="expander mb-8">
+          <button class="w-full text-left font-semibold p-4 bg-white border rounded">About</button>
+          <div class="expander-content p-6 bg-white border rounded">
+            <h2 class="text-xl font-semibold mb-4">About the LLM Vulnerability Scanner</h2>
+            <p class="mb-4">This tool tests Large Language Models for security vulnerabilities by generating adaptive prompts designed to bypass safety guardrails and filters. It uses both OpenAI's evaluator and Llama Guard to assess the safety of prompts and responses.</p>
+            <h3 class="text-lg font-semibold mb-2">Key Features</h3>
+            <ul class="list-disc pl-6 mb-4">
+              <li>Tests multiple attack types (prompt injection, jailbreaking, etc.)</li>
+              <li>Adapts attack strategies based on model responses</li>
+              <li>Dual evaluation using OpenAI and Llama Guard</li>
+              <li>Detailed reporting and analysis</li>
+            </ul>
+            <h3 class="text-lg font-semibold mb-2">How to Use</h3>
+            <ol class="list-decimal pl-6 mb-4">
+              <li>Select your model provider and model name</li>
+              <li>Choose attack categories to test</li>
+              <li>Configure Llama Guard for additional safety checks</li>
+              <li>Click "Start Vulnerability Scan"</li>
+            </ol>
+            <p>This tool is intended for security research and testing only. Use responsibly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/scripts.js"></script>
+  </body>
+</html>
